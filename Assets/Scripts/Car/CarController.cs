@@ -30,7 +30,7 @@ public class CarController : MonoBehaviour, ICarController
     {
         HandleMotor(); // Controls movement
         HandleSteering(); // Controls turning
-        //TireSteer(); // Adjusts tire rotation visually
+        TireSteer(); // Adjusts tire rotation visually
     }
 
     private void HandleMotor()
@@ -82,27 +82,51 @@ public class CarController : MonoBehaviour, ICarController
         transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, steerDirVect, 10 * Time.deltaTime);
     }
     
-    /*private void TireSteer()
+    private void TireSteer()
     {
-        float targetAngle = 180f;
-        if (input.Move.x < 0) // Steer left
+        Vector2 p1Input = input.Player1Move;
+        Vector2 p2Input = input.Player2Move;
+
+        // --- FRONT TIRES (Player 1) ---
+        float frontTargetAngle = Mathf.Lerp(0f, 25f, Mathf.Abs(p1Input.x));
+        if (p1Input.x < 0) frontTargetAngle *= -1f;
+
+        frontLeftTire.localRotation = Quaternion.Lerp(
+            frontLeftTire.localRotation,
+            Quaternion.Euler(0, frontTargetAngle, 0),
+            5 * Time.deltaTime
+        );
+        frontRightTire.localRotation = Quaternion.Lerp(
+            frontRightTire.localRotation,
+            Quaternion.Euler(0, frontTargetAngle, 0),
+            5 * Time.deltaTime
+        );
+
+        // --- REAR TIRES (opposite steer) ---
+        float backTargetAngle = 0f;
+        if (Mathf.Abs(p2Input.x) > 0.1f)
         {
-            targetAngle = 155f;
-        }
-        else if (input.Move.x > 0) // Steer right
-        {
-            targetAngle = 205f;
+            // Opposite direction of P2 input
+            if (p2Input.x < 0) backTargetAngle = 25f;   // P2 left → tires right
+            else if (p2Input.x > 0) backTargetAngle = -25f; // P2 right → tires left
         }
 
-        // Rotates front tires for visual effect when steering
-        frontLeftTire.localEulerAngles = Vector3.Lerp(frontLeftTire.localEulerAngles, new Vector3(0, targetAngle, 0), 5 * Time.deltaTime);
-        frontRightTire.localEulerAngles = Vector3.Lerp(frontRightTire.localEulerAngles, new Vector3(0, targetAngle, 0), 5 * Time.deltaTime);
-        
-        // Spins tires to simulate motion
+        backLeftTire.localRotation = Quaternion.Lerp(
+            backLeftTire.localRotation,
+            Quaternion.Euler(0, backTargetAngle, 0),
+            5 * Time.deltaTime
+        );
+        backRightTire.localRotation = Quaternion.Lerp(
+            backRightTire.localRotation,
+            Quaternion.Euler(0, backTargetAngle, 0),
+            5 * Time.deltaTime
+        );
+
+        // --- Tire Spin Animation ---
         float spinSpeed = (currentSpeed > 30) ? currentSpeed : realSpeed;
         frontLeftTire.GetChild(0).Rotate(-90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
         frontRightTire.GetChild(0).Rotate(-90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
-        backLeftTire.Rotate(90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
-        backRightTire.Rotate(90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
-    }*/
+        backLeftTire.GetChild(0).Rotate(-90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
+        backRightTire.GetChild(0).Rotate(-90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
+    }
 }
