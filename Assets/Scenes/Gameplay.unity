@@ -16126,8 +16126,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -744, y: -289}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -745, y: -282}
+  m_SizeDelta: {x: 154.9509, y: 151.3672}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &618117784
 MonoBehaviour:
@@ -16149,8 +16149,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: b93aad16e987a9d469e7c90e6af483d7, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -21336,14 +21336,14 @@ MonoBehaviour:
   - {fileID: 325940658}
   - {fileID: 919955662}
   - {fileID: 1798043292}
+  emptyStarSprite: {fileID: 21300000, guid: 044948b58ceb15c43b70f2134fe646c4, type: 3}
+  filledStarSprite: {fileID: 21300000, guid: 7e6dca9d131a4c647a5077d0fdd7a632, type: 3}
   successPanel: {fileID: 1920610040}
   successMoneyText: {fileID: 448081202}
   successStarsText: {fileID: 1519998589}
-  failPanel: {fileID: 1045045548}
   inCarPanel: {fileID: 1948236573}
   inCarPortraitImage: {fileID: 618117784}
   inCarPatienceSlider: {fileID: 202277107}
-  uiAudioSource: {fileID: 0}
 --- !u!114 &843503868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21359,8 +21359,9 @@ MonoBehaviour:
   startingTime: 90
   currentTime: 0
   money: 0
-  stars: 5
-  payPenaltyPerStarLost: 10
+  stars: 0
+  maxStars: 5
+  tipBonusPerStar: 20
 --- !u!4 &843503869
 Transform:
   m_ObjectHideFlags: 0
@@ -26735,8 +26736,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 682, y: -220}
-  m_SizeDelta: {x: 185.9929, y: 166.5491}
+  m_AnchoredPosition: {x: 685, y: -219.99995}
+  m_SizeDelta: {x: 178.3879, y: 173.7166}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1075503225
 MonoBehaviour:
@@ -26758,7 +26759,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: b93aad16e987a9d469e7c90e6af483d7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

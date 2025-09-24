@@ -12,10 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92ec918b729a47c44a735d49b1ad56d3, type: 3}
   m_Name: Passenger1
   m_EditorClassIdentifier: 
-  passengerName: 
-  portrait: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  portrait: {fileID: 21300000, guid: b93aad16e987a9d469e7c90e6af483d7, type: 3}
   prefab: {fileID: 1961864281494384076, guid: b128b1cf2f54e074f92c1ae9a4d39251, type: 3}
   baseFare: 100
   timeBonus: 8
-  happyVoicelines: []
-  angryVoicelines: []

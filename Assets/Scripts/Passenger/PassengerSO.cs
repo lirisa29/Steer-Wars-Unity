@@ -7,6 +7,4 @@ public class PassengerSO : ScriptableObject
     public GameObject prefab; // prefab that contains PassengerController
     public int baseFare = 100;
     public float timeBonus = 8f; // seconds added on successful drop-off
-    public AudioClip[] happyVoicelines; // on success
-    public AudioClip[] angryVoicelines; // when unhappy (damage/slow)
 }

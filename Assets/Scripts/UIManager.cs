@@ -17,20 +17,22 @@ public class UIManager : MonoBehaviour
     [Header("Timer / Money / Stars")]
     public TMP_Text timerText;
     public TMP_Text moneyText;
-    public Image[] starImages; // 5 star images, enable/disable or swap sprite
+    public Image[] starImages;
+    public Sprite emptyStarSprite;
+    public Sprite filledStarSprite;
 
     [Header("End Panels")]
     public GameObject successPanel;
     public TMP_Text successMoneyText;
     public TMP_Text successStarsText;
-    public GameObject failPanel;
 
     [Header("Passenger In Car UI")]
     public GameObject inCarPanel;
     public Image inCarPortraitImage;
     public Image inCarPatienceSlider;
-    public AudioSource uiAudioSource;
     private bool passengerLostPatience = false;
+    private float currentPatience = 1f;
+    public float CurrentPatience => currentPatience;
 
     private void Awake()
     {
@@ -86,10 +88,12 @@ public class UIManager : MonoBehaviour
 
     public void UpdateStars(int currentStars)
     {
-        // enable the first currentStars images, disable remainder
         for (int i = 0; i < starImages.Length; i++)
         {
-            starImages[i].gameObject.SetActive(i < currentStars);
+            if (i < currentStars)
+                starImages[i].sprite = filledStarSprite;
+            else
+                starImages[i].sprite = emptyStarSprite;
         }
     }
 
@@ -98,11 +102,6 @@ public class UIManager : MonoBehaviour
         successPanel.SetActive(true);
         successMoneyText.text = $"${money}";
         successStarsText.text = $"{stars}/5";
-    }
-
-    public void ShowFailPanel()
-    {
-        failPanel.SetActive(true);
     }
 
     public void HideInGameUI()
@@ -126,7 +125,7 @@ public class UIManager : MonoBehaviour
         {
             passengerLostPatience = false;
             inCarPortraitImage.sprite = passenger.portrait;
-            inCarPatienceSlider.fillAmount = 1f; // full patience
+            inCarPatienceSlider.fillAmount = currentPatience;
             StartCoroutine(PatienceDecayRoutine(passenger));
         }
         else
@@ -138,21 +137,18 @@ public class UIManager : MonoBehaviour
 
     private System.Collections.IEnumerator PatienceDecayRoutine(PassengerSO passenger)
     {
-        // patience slowly decays while passenger is in car; if it hits zero, lose star and play voiceline
-        float patience = 1f;
-        float decayRate = 0.02f; // per second; tune as needed
+        currentPatience = 1f; // reset on new passenger
+        float decayRate = 0.02f; 
+
         while (true)
         {
-            patience -= decayRate * Time.deltaTime;
-            inCarPatienceSlider.fillAmount = patience;
-            if (patience <= 0f && !passengerLostPatience)
+            currentPatience -= decayRate * Time.deltaTime;
+            inCarPatienceSlider.fillAmount = currentPatience;
+
+            if (currentPatience <= 0f && !passengerLostPatience)
             {
                 passengerLostPatience = true;
-                // player lost patience: lose star and play voiceline
                 GameManager.Instance.LoseStar(1);
-                if (passenger != null && passenger.angryVoicelines.Length > 0)
-                    uiAudioSource.PlayOneShot(passenger.angryVoicelines[UnityEngine.Random.Range(0, passenger.angryVoicelines.Length)]);
-
                 yield break;
             }
             yield return null;

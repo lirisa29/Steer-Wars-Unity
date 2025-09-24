@@ -12,7 +12,7 @@ public class PassengerManager : MonoBehaviour
     public Transform[] dropoffLocations;
 
     [Header("Request Flow")]
-    public float requestInterval = 6f; // time between requests spawning (incremental)
+    public float requestInterval = 10f; // time between requests spawning (incremental)
     public int maxConcurrentRequests = 1;
     
     [Header("References")]
@@ -25,6 +25,7 @@ public class PassengerManager : MonoBehaviour
     private Transform currentPickup;
     private Transform currentDropoff;
     private GameObject spawnedPassengerGO;
+    private float lastRequestTime = 0f;
 
     private void Awake()
     {
@@ -35,18 +36,22 @@ public class PassengerManager : MonoBehaviour
     private void Start()
     {
         StartCoroutine(RequestSpawner());
+        StartCoroutine(RequestTimerRoutine());
     }
 
     private IEnumerator RequestSpawner()
     {
         while (true)
         {
-            yield return new WaitForSeconds(requestInterval);
-            
-            // if there's no active request AND we don't already have a passenger in car
-            if (activeRequests.Count < maxConcurrentRequests && !activePassenger)
+            yield return null;
+
+            if (Time.time - lastRequestTime >= requestInterval)
             {
-                GeneratePassengerRequest();
+                if (activeRequests.Count < maxConcurrentRequests && !activePassenger)
+                {
+                    GeneratePassengerRequest();
+                    lastRequestTime = Time.time; // reset timer
+                }
             }
         }
     }
@@ -63,7 +68,7 @@ public class PassengerManager : MonoBehaviour
         float dist = 0f;
         if (player) dist = Vector3.Distance(player.transform.position, currentPickup.position);
 
-        int reward = GameManager.Instance.GetEffectiveFare(currentPassengerSO.baseFare);
+        int reward = currentPassengerSO.baseFare;
 
         // create request data
         PassengerRequest req = new PassengerRequest()
@@ -141,34 +146,42 @@ public class PassengerManager : MonoBehaviour
         if (!activePassenger) return;
 
         activePassenger = false;
-        
+    
         // reward
-        int pay = GameManager.Instance.GetEffectiveFare(currentPassengerSO.baseFare);
-        GameManager.Instance.AddMoney(pay);
+        GameManager.Instance.AddMoney(currentPassengerSO.baseFare);
         GameManager.Instance.AddTime(currentPassengerSO.timeBonus);
-
-        // play happy voiceline if any
-        if (currentPassengerSO.happyVoicelines != null && currentPassengerSO.happyVoicelines.Length > 0)
-        {
-            AudioSource.PlayClipAtPoint(currentPassengerSO.happyVoicelines[Random.Range(0, currentPassengerSO.happyVoicelines.Length)], Camera.main.transform.position);
-        }
 
         UIManager.Instance.SetPassengerInCar(false, null);
         
+        if (UIManager.Instance.CurrentPatience >= 0.5f)
+        {
+            GameManager.Instance.GainStar(1);
+        }
+    
         if (carArrow != null)
             carArrow.DisableArrow();
     }
-
-    // called externally when player damages car while passenger present
-    public void OnPassengerAnnoyedByDamage()
+    
+    private IEnumerator RequestTimerRoutine()
     {
-        // immediate star loss
-        GameManager.Instance.LoseStar(1);
-        // play angry voiceline
-        if (currentPassengerSO != null && currentPassengerSO.angryVoicelines.Length > 0)
-            AudioSource.PlayClipAtPoint(currentPassengerSO.angryVoicelines[Random.Range(0, currentPassengerSO.angryVoicelines.Length)], Camera.main.transform.position);
+        while (true)
+        {
+            yield return null; // every frame
 
-        // if pay or request frequency should be penalized, GameManager handles via stars
+            for (int i = activeRequests.Count - 1; i >= 0; i--)
+            {
+                PassengerRequest req = activeRequests[i];
+                req.timeRemaining -= Time.deltaTime;
+
+                if (req.timeRemaining <= 0f)
+                {
+                    Debug.Log($"[PassengerManager] Auto-declining passenger request '{req.passengerSO.name}'");
+                    activeRequests.RemoveAt(i);
+                    lastRequestTime = Time.time; // prevent instant respawn
+                    UIManager.Instance.HidePassengerRequest();
+                }
+            }
+        }
     }
     
     public bool IsActivePickup(Transform pickup)
@@ -189,5 +202,7 @@ public class PassengerManager : MonoBehaviour
         public Transform dropoffPoint;
         public int reward;
         public float distance;
+        
+        public float timeRemaining = 10f; // time before auto-decline
     }
 }

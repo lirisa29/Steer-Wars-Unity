@@ -11,10 +11,11 @@ public class GameManager : MonoBehaviour
 
     [Header("Money & Rating")]
     public int money = 0;
-    [Range(0,5)] public int stars = 5;
+    [Range(0,5)] public int stars = 0;
 
-    [Header("Star decay/gain")]
-    public int payPenaltyPerStarLost = 10; // reduce pay by this per star missing
+    [Header("Stars & Tips")]
+    public int maxStars = 5;
+    public int tipBonusPerStar = 20;
 
     // internal
     private void Awake()
@@ -25,7 +26,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Starting stars: " + stars);
         currentTime = startingTime;
         UpdateUI();
     }
@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         // tick timer
-        if (currentTime > 0f && stars > 0)
+        if (currentTime > 0f)
         {
             currentTime -= Time.deltaTime;
             UIManager.Instance.UpdateTimer(currentTime);
@@ -62,30 +62,19 @@ public class GameManager : MonoBehaviour
         if (amount <= 0) return;
         stars = Mathf.Max(0, stars - amount);
         UIManager.Instance.UpdateStars(stars);
-        if (stars == 0) 
-        {
-            OnAllStarsLost();
-        }
     }
 
     public void GainStar(int amount = 1)
     {
         if (amount <= 0) return;
-        stars = Mathf.Min(5, stars + amount);
+        int oldStars = stars;
+        stars = Mathf.Min(maxStars, stars + amount);
+        if (stars > oldStars)
+        {
+            // reward tip for gaining a star
+            AddMoney(tipBonusPerStar);
+        }
         UIManager.Instance.UpdateStars(stars);
-    }
-
-    public int GetEffectiveFare(int baseFare)
-    {
-        // pay reduced by missing stars
-        int missing = 5 - stars;
-        return Mathf.Max(0, baseFare - missing * payPenaltyPerStarLost);
-    }
-
-    private void OnAllStarsLost()
-    {
-        // Game over
-        UIManager.Instance.ShowFailPanel();
     }
 
     private void OnTimeExpired()
