@@ -29,10 +29,11 @@ public class UIManager : MonoBehaviour
     [Header("Passenger In Car UI")]
     public GameObject inCarPanel;
     public Image inCarPortraitImage;
-    public Image inCarPatienceSlider;
+    public Slider inCarPatienceSlider;
     private bool passengerLostPatience = false;
     private float currentPatience = 1f;
     public float CurrentPatience => currentPatience;
+    private Coroutine patienceRoutine;
 
     private void Awake()
     {
@@ -121,37 +122,56 @@ public class UIManager : MonoBehaviour
     public void SetPassengerInCar(bool inCar, PassengerSO passenger)
     {
         inCarPanel.SetActive(inCar);
+
         if (inCar)
         {
-            passengerLostPatience = false;
-            inCarPortraitImage.sprite = passenger.portrait;
-            inCarPatienceSlider.fillAmount = currentPatience;
-            StartCoroutine(PatienceDecayRoutine(passenger));
+            // Only start coroutine if none is running
+            if (patienceRoutine == null && !passengerLostPatience)
+            {
+                passengerLostPatience = false;
+                currentPatience = 1f;
+
+                inCarPortraitImage.sprite = passenger.portrait;
+                inCarPatienceSlider.minValue = 0f;
+                inCarPatienceSlider.maxValue = 1f;
+                inCarPatienceSlider.value = currentPatience;
+
+                patienceRoutine = StartCoroutine(PatienceDecayRoutine());
+            }
         }
         else
         {
-            StopAllCoroutines();
+            // Stop the routine if passenger leaves
+            if (patienceRoutine != null)
+            {
+                StopCoroutine(patienceRoutine);
+                patienceRoutine = null;
+            }
             inCarPanel.SetActive(false);
         }
     }
 
-    private System.Collections.IEnumerator PatienceDecayRoutine(PassengerSO passenger)
+    private System.Collections.IEnumerator PatienceDecayRoutine()
     {
-        currentPatience = 1f; // reset on new passenger
-        float decayRate = 0.02f; 
+        currentPatience = 1f;
+        inCarPatienceSlider.value = currentPatience;
+        float decayRate = 0.02f; // patience per second
 
-        while (true)
+        while (currentPatience > 0f)
         {
-            currentPatience -= decayRate * Time.deltaTime;
-            inCarPatienceSlider.fillAmount = currentPatience;
+            currentPatience -= decayRate * Time.deltaTime; 
+            currentPatience = Mathf.Clamp01(currentPatience);
+            inCarPatienceSlider.value = currentPatience;
 
-            if (currentPatience <= 0f && !passengerLostPatience)
-            {
-                passengerLostPatience = true;
-                GameManager.Instance.LoseStar(1);
-                yield break;
-            }
             yield return null;
         }
+
+        if (!passengerLostPatience)
+        {
+            passengerLostPatience = true;
+            GameManager.Instance.LoseStar(1);
+        }
+        
+        patienceRoutine = null;
     }
 }
