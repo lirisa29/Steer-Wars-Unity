@@ -14,6 +14,9 @@ public class PassengerManager : MonoBehaviour
     [Header("Request Flow")]
     public float requestInterval = 6f; // time between requests spawning (incremental)
     public int maxConcurrentRequests = 1;
+    
+    [Header("References")]
+    public DirectionArrow carArrow;
 
     // runtime
     private List<PassengerRequest> activeRequests = new List<PassengerRequest>();
@@ -106,6 +109,9 @@ public class PassengerManager : MonoBehaviour
 
         // Remove from queue
         activeRequests.RemoveAt(0);
+        
+        if (carArrow != null && currentPickup != null)
+            carArrow.PointToPickup(currentPickup);
     }
 
     public void DeclineRequest()
@@ -124,6 +130,9 @@ public class PassengerManager : MonoBehaviour
 
         // Start rating decay timer while passenger is in car
         UIManager.Instance.SetPassengerInCar(true, currentPassengerSO);
+        
+        if (carArrow != null && currentDropoff != null)
+            carArrow.PointToDropoff(currentDropoff);
     }
 
     // called by DropoffZone when dropped off successfully
@@ -145,6 +154,9 @@ public class PassengerManager : MonoBehaviour
         }
 
         UIManager.Instance.SetPassengerInCar(false, null);
+        
+        if (carArrow != null)
+            carArrow.DisableArrow();
     }
 
     // called externally when player damages car while passenger present

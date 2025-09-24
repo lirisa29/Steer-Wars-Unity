@@ -30,7 +30,7 @@ public class PickupZone : MonoBehaviour
         if (rb.linearVelocity.magnitude <= stopSpeedThreshold)
         {
             // Ask the manager if THIS pickup zone is the active one
-            if (PassengerManager.Instance != null && PassengerManager.Instance.IsActivePickup(transform))
+            if (PassengerManager.Instance != null && PassengerManager.Instance.IsActivePickup(pickupTransform))
             {
                 PassengerManager.Instance.OnPickedUp();
             }
