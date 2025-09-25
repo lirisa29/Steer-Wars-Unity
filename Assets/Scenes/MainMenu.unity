@@ -4895,8 +4895,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 1.5576, y: -37}
-  m_SizeDelta: {x: 714.0079, y: 681.42}
+  m_AnchoredPosition: {x: 0.6051, y: -37}
+  m_SizeDelta: {x: 798.5074, y: 681.42}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1869763797
 MonoBehaviour:
@@ -4918,14 +4918,50 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "1 Car. 2 Drivers. Inifinte Chaos. \nGrab a friend and hop into the glitchy,
-    co-op taxi experience of your nightmares.\n\nThe Setup\nPlayer 1 controls the
-    front wheels with WASD\nPlayer 2 controls the back wheels with IJKL\n\nPick Up.
-    Drop Off. Repeat.\nNavigate the city to pick up passengers.\nSteer together to
-    reach their destination fast and safe(ish).\nEarn fares, stars, tips, and bonus
-    time with smooth driving.\nSpend earnings on car upgrades to handle tougher routes.\n\nBUT
-    WATCH OUT...\nBad driving = lost stars and tips.\nThe AI will hijack the car
-    sometimes. Ride it out-or wrestle control back."
+  m_text: 'Player 1 controls the front wheels with WASD
+
+    W - Accelerate
+
+    S
+    - Reverse
+
+    A - Steer Left
+
+    D - Steer Right
+
+
+    Player 2 controls the
+    back wheels with IJKL
+
+    I - Accelerate
+
+    K - Reverse
+
+    L - Steer Left
+
+    J
+    - Steer Right
+
+
+    BOTH players must press the correct keys to control the car
+
+
+    Pick
+    Up. Drop Off. Repeat.
+
+    Earn fares, stars, tips, and bonus time with smooth
+    driving.
+
+    Spend earnings on car upgrades to handle tougher routes.
+
+
+    BUT
+    WATCH OUT...
+
+    Bad driving = lost stars and tips.
+
+    The AI will hijack
+    the car sometimes. '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 12a7d85ba4aac8b4486c102063b08e84, type: 2}
   m_sharedMaterial: {fileID: 6043287487394601635, guid: 12a7d85ba4aac8b4486c102063b08e84, type: 2}
@@ -4952,8 +4988,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40
-  m_fontSizeBase: 40
+  m_fontSize: 34
+  m_fontSizeBase: 34
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
