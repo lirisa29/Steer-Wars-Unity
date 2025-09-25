@@ -18,10 +18,11 @@ public class DropoffZone : MonoBehaviour
         if (rb == null) return;
 
         // require car to be stopped
-        if (rb.linearVelocity.magnitude <= 1.5f && PassengerManager.Instance.ActivePassenger == true)
+        if (rb.linearVelocity.magnitude <= 1.5f &&
+            PassengerManager.Instance.ActivePassenger &&
+            PassengerManager.Instance.pickedUp) // must have actually picked up
         {
-            // check if this dropoff matches the assigned dropoff
-            if (PassengerManager.Instance != null && PassengerManager.Instance.IsActiveDropoff(dropoffTransform))
+            if (PassengerManager.Instance.IsActiveDropoff(dropoffTransform))
             {
                 PassengerManager.Instance.OnDroppedOff();
             }

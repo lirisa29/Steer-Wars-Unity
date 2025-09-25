@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92ec918b729a47c44a735d49b1ad56d3, type: 3}
   m_Name: Passenger5
   m_EditorClassIdentifier: 
-  portrait: {fileID: 21300000, guid: 35ae8c1b402688a46a1f504b20211f27, type: 3}
+  portrait: {fileID: 21300000, guid: b93aad16e987a9d469e7c90e6af483d7, type: 3}
   prefab: {fileID: 6122750290263581145, guid: 3f464be7a8def8e458132dc5c550b9cf, type: 3}
   baseFare: 30
   timeBonus: 8
