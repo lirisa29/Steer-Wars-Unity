@@ -24,21 +24,17 @@ public class VolumeSettings : MonoBehaviour
             SetSFXVolume();
         }
         
-        if (PlayerPrefs.HasKey("fullscreen"))
-        {
-            bool isFullscreen = PlayerPrefs.GetInt("fullscreen") == 1;
-            Screen.fullScreen = isFullscreen;
-            if (fullscreenToggle != null)
-                fullscreenToggle.isOn = isFullscreen;
-        }
-        else
-        {
-            // Default: fullscreen on
-            Screen.fullScreen = true;
-            PlayerPrefs.SetInt("fullscreen", 1);
-            if (fullscreenToggle != null)
-                fullscreenToggle.isOn = true;
-        }
+        // Load saved setting (default to 1/true if nothing saved)
+        bool isFullscreen = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
+
+        // Apply saved fullscreen setting
+        Screen.fullScreen = isFullscreen;
+
+        // Sync toggle with saved state
+        fullscreenToggle.isOn = isFullscreen;
+
+        // Add listener
+        fullscreenToggle.onValueChanged.AddListener(SetFullScreen);
     }
     
     public void SetMusicVolume()
@@ -64,9 +60,12 @@ public class VolumeSettings : MonoBehaviour
         SetSFXVolume();
     }
     
-    public void SetFullscreen(bool isFullscreen)
+    public void SetFullScreen(bool isFullscreen)
     {
         Screen.fullScreen = isFullscreen;
-        PlayerPrefs.SetInt("fullscreen", isFullscreen ? 1 : 0);
+
+        // Save setting
+        PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);
+        PlayerPrefs.Save();
     }
 }
