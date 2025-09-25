@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Passenger1
   m_EditorClassIdentifier: 
   portrait: {fileID: 21300000, guid: b93aad16e987a9d469e7c90e6af483d7, type: 3}
-  prefab: {fileID: 1961864281494384076, guid: b128b1cf2f54e074f92c1ae9a4d39251, type: 3}
+  prefab: {fileID: 376443728710924465, guid: 382af296df59c8d40a4c1728fd985072, type: 3}
   baseFare: 100
   timeBonus: 8

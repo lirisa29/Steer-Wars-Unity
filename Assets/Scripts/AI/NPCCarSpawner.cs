@@ -36,6 +36,8 @@ public class NPCCarSpawner : MonoBehaviour
 
         // Initialize AI
         NPCCarAI ai = npc.GetComponent<NPCCarAI>();
-        ai.Initialize(startWaypoint.GetNext());
+        ai.Initialize(startWaypoint);
+        
+        Debug.Log($"Spawned {chosenPrefab.name} at {startWaypoint.name}");
     }
 }

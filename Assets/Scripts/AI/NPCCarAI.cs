@@ -6,7 +6,7 @@ public class NPCCarAI : MonoBehaviour
     private NavMeshAgent agent;
     private AIWaypoints currentWaypoint;
 
-    void Start()
+    void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
 

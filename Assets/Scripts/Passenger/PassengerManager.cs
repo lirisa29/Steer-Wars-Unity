@@ -17,6 +17,8 @@ public class PassengerManager : MonoBehaviour
     
     [Header("References")]
     public DirectionArrow carArrow;
+    
+    [SerializeField] private float passengerDestroyDelay = 5f;
 
     // runtime
     private List<PassengerRequest> activeRequests = new List<PassengerRequest>();
@@ -154,24 +156,38 @@ public class PassengerManager : MonoBehaviour
 
         activePassenger = false;
         pickedUp = false;
-    
+
         // reward
         GameManager.Instance.AddMoney(currentPassengerSO.baseFare);
         GameManager.Instance.AddTime(currentPassengerSO.timeBonus);
 
         UIManager.Instance.SetPassengerInCar(false, null);
-        
+
         audioManager.PlaySound("SFX_Dropoff");
-        
-        if (UIManager.Instance.CurrentPatience >= 0.5f)
+
+        if (UIManager.Instance.CurrentPatience >= 0.25f)
         {
             GameManager.Instance.GainStar(1);
         }
-    
+
         if (carArrow != null)
             carArrow.DisableArrow();
+
+        // --- SPAWN PASSENGER AT DROP-OFF POINT ---
+        if (currentPassengerSO.prefab != null && currentDropoff != null)
+        {
+            GameObject droppedPassenger =
+                Instantiate(currentPassengerSO.prefab, currentDropoff.position, Quaternion.identity);
+            
+            Destroy(droppedPassenger, passengerDestroyDelay);
+        }
+        
+        // Clear current passenger data
+        currentPassengerSO = null;
+        currentPickup = null;
+        currentDropoff = null;
     }
-    
+
     private IEnumerator RequestTimerRoutine()
     {
         while (true)
