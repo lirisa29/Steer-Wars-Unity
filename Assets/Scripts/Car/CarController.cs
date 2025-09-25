@@ -185,8 +185,9 @@ public class CarController : MonoBehaviour, ICarController
             yield return new WaitForSeconds(Random.Range(10f, 30f));
 
             aiActive = true;
-            currentWaypoint = FindClosestWaypoint(); // or assign dynamically
+            currentWaypoint = FindClosestWaypoint();
             UIManager.Instance.ShowAIControlText(true);
+            AudioManager.Instance.PlaySound("SFX_AITakeover");
 
             yield return new WaitForSeconds(Random.Range(5f, 15f));
 
