@@ -70158,6 +70158,7 @@ MonoBehaviour:
   backRightTire: {fileID: 1969655970}
   maxSpeed: 30
   aiActive: 0
+  maxTiltAngle: 75
   input: {fileID: 11400000, guid: edac7a15b38db3f45b078afa7f5f3fd5, type: 2}
 --- !u!65 &1675154260
 BoxCollider:

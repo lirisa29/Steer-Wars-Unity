@@ -31,6 +31,8 @@ public class PassengerManager : MonoBehaviour
     private AudioManager audioManager;
     public bool pickedUp;
 
+    public bool ActivePassenger => activePassenger;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) Destroy(gameObject);

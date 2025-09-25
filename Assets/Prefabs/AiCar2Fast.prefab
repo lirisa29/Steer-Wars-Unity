@@ -107,6 +107,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3817e99644b27774aa4e613deab8cda4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  stuckThreshold: 0.1
+  stuckTime: 2
 --- !u!195 &1544497748405345992
 NavMeshAgent:
   m_ObjectHideFlags: 0
