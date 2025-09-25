@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class CarController : MonoBehaviour, ICarController
@@ -16,6 +17,10 @@ public class CarController : MonoBehaviour, ICarController
     [Header("Steer Attributes")]
     private float steerDirection;
     
+    [Header("AI Control")]
+    public bool aiActive = false;
+    private AIWaypoints currentWaypoint;
+    
     [Header("Refs")]
     [SerializeField] private InputReader input;
     Rigidbody rb;
@@ -24,6 +29,8 @@ public class CarController : MonoBehaviour, ICarController
     {
         rb = GetComponent<Rigidbody>();
         input.Enable();
+        
+        StartCoroutine(ActivateAIRandomly());
     }
 
     void FixedUpdate()
@@ -32,30 +39,52 @@ public class CarController : MonoBehaviour, ICarController
         HandleSteering(); // Controls turning
         TireSteer(); // Adjusts tire rotation visually
     }
-
-    private void HandleMotor()
+    
+    private Vector2 GetMovementInput()
     {
-        Vector2 p1Input = input.Player1Move;
-        Vector2 p2Input = input.Player2Move;
-
-        // Require BOTH players to press the same direction for movement
-        bool bothForward = p1Input.y > 0.5f && p2Input.y > 0.5f;
-        bool bothBackward = p1Input.y < -0.5f && p2Input.y < -0.5f;
-
-        realSpeed = transform.InverseTransformDirection(rb.linearVelocity).z;
-
-        if (bothForward)
+        if (aiActive && currentWaypoint != null)
         {
-            currentSpeed = Mathf.Lerp(currentSpeed, maxSpeed, Time.deltaTime * 0.5f);
-        }
-        else if (bothBackward)
-        {
-            currentSpeed = Mathf.Lerp(currentSpeed, -maxSpeed / 1.75f, Time.deltaTime * 1f);
+            // --- AI Driving toward current waypoint ---
+            Vector3 localTarget = transform.InverseTransformPoint(currentWaypoint.transform.position);
+
+            float steer = Mathf.Clamp(localTarget.x / localTarget.magnitude, -1f, 1f);
+            float accel = (localTarget.z > 0) ? 1f : -1f;
+
+            // If close enough, pick next waypoint
+            if (localTarget.magnitude < 5f)
+            {
+                currentWaypoint = currentWaypoint.GetNext();
+            }
+
+            return new Vector2(steer, accel);
         }
         else
         {
-            currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.deltaTime * 1.5f);
+            // --- Player Driving (same as before) ---
+            Vector2 p1Input = input.Player1Move;
+            Vector2 p2Input = input.Player2Move;
+
+            float steer = (Mathf.Sign(p1Input.x) == Mathf.Sign(p2Input.x)) ? (p1Input.x + p2Input.x) / 2f : 0f;
+            float accel = 0f;
+            if (p1Input.y > 0.5f && p2Input.y > 0.5f) accel = 1f;
+            else if (p1Input.y < -0.5f && p2Input.y < -0.5f) accel = -1f;
+
+            return new Vector2(steer, accel);
         }
+    }
+
+    private void HandleMotor()
+    {
+        Vector2 moveInput = GetMovementInput();
+
+        realSpeed = transform.InverseTransformDirection(rb.linearVelocity).z;
+
+        if (moveInput.y > 0.5f)
+            currentSpeed = Mathf.Lerp(currentSpeed, maxSpeed, Time.deltaTime * 0.5f);
+        else if (moveInput.y < -0.5f)
+            currentSpeed = Mathf.Lerp(currentSpeed, -maxSpeed / 1.75f, Time.deltaTime * 1f);
+        else
+            currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.deltaTime * 1.5f);
 
         Vector3 vel = transform.forward * currentSpeed;
         vel.y = rb.linearVelocity.y;
@@ -64,20 +93,11 @@ public class CarController : MonoBehaviour, ICarController
 
     private void HandleSteering()
     {
-        Vector2 p1Input = input.Player1Move;
-        Vector2 p2Input = input.Player2Move;
+        Vector2 moveInput = GetMovementInput();
 
-        // Require both players to steer in same direction
-        if (Mathf.Sign(p1Input.x) == Mathf.Sign(p2Input.x) && Mathf.Abs(p1Input.x) > 0.5f && Mathf.Abs(p2Input.x) > 0.5f)
-        {
-            steerDirection = (p1Input.x + p2Input.x) / 2f; // average input
-        }
-        else
-        {
-            steerDirection = 0f; // no steering if inputs don't match
-        }
-
+        steerDirection = moveInput.x;
         float steerAmount = (realSpeed > 30) ? (realSpeed / 3) * steerDirection : (realSpeed / 1.4f) * steerDirection;
+
         Vector3 steerDirVect = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y + steerAmount, transform.eulerAngles.z);
         transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, steerDirVect, 10 * Time.deltaTime);
     }
@@ -128,5 +148,38 @@ public class CarController : MonoBehaviour, ICarController
         frontRightTire.GetChild(0).Rotate(-90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
         backLeftTire.GetChild(0).Rotate(-90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
         backRightTire.GetChild(0).Rotate(-90 * Time.deltaTime * spinSpeed * 0.5f, 0, 0);
+    }
+    
+    private AIWaypoints FindClosestWaypoint()
+    {
+        AIWaypoints[] allWaypoints = FindObjectsOfType<AIWaypoints>();
+        AIWaypoints closest = null;
+        float minDist = Mathf.Infinity;
+
+        foreach (var wp in allWaypoints)
+        {
+            float dist = Vector3.Distance(transform.position, wp.transform.position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = wp;
+            }
+        }
+        return closest;
+    }
+    
+    IEnumerator ActivateAIRandomly()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(Random.Range(10f, 30f));
+
+            aiActive = true;
+            currentWaypoint = FindClosestWaypoint(); // or assign dynamically
+
+            yield return new WaitForSeconds(Random.Range(5f, 15f));
+
+            aiActive = false;
+        }
     }
 }
