@@ -27,7 +27,9 @@ public class WaypointMover : MonoBehaviour
 
         // Set next waypoint
         currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
-        transform.LookAt(currentWaypoint);
+        Vector3 lookPos = currentWaypoint.position;
+        lookPos.y = transform.position.y; // keep current height
+        transform.LookAt(lookPos);
 
         // Start random walk/idle cycle
         StartCoroutine(RandomIdleRoutine());
@@ -38,12 +40,15 @@ public class WaypointMover : MonoBehaviour
         if (isIdle) return; // stop moving if idle
 
         // Movement
-        transform.position = Vector3.MoveTowards(transform.position, currentWaypoint.position, moveSpeed * Time.deltaTime);
+        Vector3 target = new Vector3(currentWaypoint.position.x, transform.position.y, currentWaypoint.position.z);
+        transform.position = Vector3.MoveTowards(transform.position, target, moveSpeed * Time.deltaTime);
 
         if (Vector3.Distance(transform.position, currentWaypoint.position) < distanceThreshold)
         {
             currentWaypoint = waypoints.GetNextWaypoint(currentWaypoint);
-            transform.LookAt(currentWaypoint);
+            Vector3 lookPos = currentWaypoint.position;
+            lookPos.y = transform.position.y; // keep current height
+            transform.LookAt(lookPos);
         }
     }
 
