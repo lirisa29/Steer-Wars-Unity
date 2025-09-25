@@ -43,6 +43,10 @@ public class UIManager : MonoBehaviour
     
     private Coroutine flashRoutine;
     private Color defaultTimerColor;
+    
+    [Header("AI Control")]
+    public TMP_Text aiControlText;
+    private Coroutine aiPulseRoutine;
 
     private void Awake()
     {
@@ -240,5 +244,39 @@ public class UIManager : MonoBehaviour
         }
         
         patienceRoutine = null;
+    }
+    
+    public void ShowAIControlText(bool show)
+    {
+        if (show)
+        {
+            aiControlText.gameObject.SetActive(true);
+
+            if (aiPulseRoutine == null)
+                aiPulseRoutine = StartCoroutine(PulseText(aiControlText));
+        }
+        else
+        {
+            if (aiPulseRoutine != null)
+            {
+                StopCoroutine(aiPulseRoutine);
+                aiPulseRoutine = null;
+            }
+            aiControlText.gameObject.SetActive(false);
+        }
+    }
+    
+    private IEnumerator PulseText(TMP_Text text)
+    {
+        float t = 0f;
+        while (true)
+        {
+            // PingPong goes 0 → 1 → 0 → 1...
+            float scale = Mathf.Lerp(0.9f, 1.2f, Mathf.PingPong(t, 1f));
+            text.transform.localScale = Vector3.one * scale;
+
+            t += Time.deltaTime * 2f; // pulse speed
+            yield return null;
+        }
     }
 }

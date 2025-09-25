@@ -30,6 +30,10 @@ public class CarController : MonoBehaviour, ICarController
         rb = GetComponent<Rigidbody>();
         input.Enable();
         
+        rb.centerOfMass = new Vector3(0, -0.5f, 0);
+        rb.linearDamping = 0.5f;        // slows car naturally
+        rb.angularDamping = 2f;
+        
         StartCoroutine(ActivateAIRandomly());
     }
 
@@ -38,6 +42,7 @@ public class CarController : MonoBehaviour, ICarController
         HandleMotor(); // Controls movement
         HandleSteering(); // Controls turning
         TireSteer(); // Adjusts tire rotation visually
+        ApplyGrip();
     }
     
     private Vector2 GetMovementInput()
@@ -76,19 +81,24 @@ public class CarController : MonoBehaviour, ICarController
     private void HandleMotor()
     {
         Vector2 moveInput = GetMovementInput();
-
         realSpeed = transform.InverseTransformDirection(rb.linearVelocity).z;
 
-        if (moveInput.y > 0.5f)
-            currentSpeed = Mathf.Lerp(currentSpeed, maxSpeed, Time.deltaTime * 0.5f);
-        else if (moveInput.y < -0.5f)
-            currentSpeed = Mathf.Lerp(currentSpeed, -maxSpeed / 1.75f, Time.deltaTime * 1f);
-        else
-            currentSpeed = Mathf.Lerp(currentSpeed, 0, Time.deltaTime * 1.5f);
+        float targetSpeed = 0;
 
-        Vector3 vel = transform.forward * currentSpeed;
-        vel.y = rb.linearVelocity.y;
-        rb.linearVelocity = vel;
+        if (moveInput.y > 0.5f)
+            targetSpeed = maxSpeed;
+        else if (moveInput.y < -0.5f)
+            targetSpeed = -maxSpeed / 1.75f;
+
+        // Smooth acceleration/braking
+        currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * 1.5f);
+
+        // Difference between desired speed and actual speed
+        float speedDiff = currentSpeed - realSpeed;
+
+        // Apply force only if needed
+        Vector3 force = transform.forward * speedDiff * 10f; // 10 = acceleration strength
+        rb.AddForce(force, ForceMode.Acceleration);
     }
 
     private void HandleSteering()
@@ -176,10 +186,22 @@ public class CarController : MonoBehaviour, ICarController
 
             aiActive = true;
             currentWaypoint = FindClosestWaypoint(); // or assign dynamically
+            UIManager.Instance.ShowAIControlText(true);
 
             yield return new WaitForSeconds(Random.Range(5f, 15f));
 
             aiActive = false;
+            UIManager.Instance.ShowAIControlText(false);
         }
+    }
+    
+    private void ApplyGrip()
+    {
+        Vector3 localVel = transform.InverseTransformDirection(rb.linearVelocity);
+
+        // Kill sideways (x) velocity gradually
+        localVel.x = Mathf.Lerp(localVel.x, 0, Time.fixedDeltaTime * 5f);
+
+        rb.linearVelocity = transform.TransformDirection(localVel);
     }
 }
