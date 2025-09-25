@@ -21,6 +21,9 @@ public class CarController : MonoBehaviour, ICarController
     public bool aiActive = false;
     private AIWaypoints currentWaypoint;
     
+    [Header("Flip Reset Settings")]
+    [SerializeField] private float maxTiltAngle = 75f;
+    
     [Header("Refs")]
     [SerializeField] private InputReader input;
     Rigidbody rb;
@@ -43,6 +46,7 @@ public class CarController : MonoBehaviour, ICarController
         HandleSteering(); // Controls turning
         TireSteer(); // Adjusts tire rotation visually
         ApplyGrip();
+        CheckFlip();
     }
     
     private Vector2 GetMovementInput()
@@ -204,5 +208,29 @@ public class CarController : MonoBehaviour, ICarController
         localVel.x = Mathf.Lerp(localVel.x, 0, Time.fixedDeltaTime * 5f);
 
         rb.linearVelocity = transform.TransformDirection(localVel);
+    }
+    
+    private void CheckFlip()
+    {
+        // Measure angle between car's up and world up
+        float tiltAngle = Vector3.Angle(Vector3.up, transform.up);
+
+        if (tiltAngle > maxTiltAngle)
+        {
+            ResetCarPosition();
+        }
+    }
+    
+    private void ResetCarPosition()
+    {
+        // Reset position slightly above the ground
+        Vector3 safePos = transform.position + Vector3.up * 1f;
+
+        // Reset physics
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        // Reset rotation (keep yaw)
+        transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
     }
 }
