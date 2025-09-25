@@ -32709,6 +32709,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d9d61cf4ff6469a43b7d4baed8d177ed, type: 2}
   - {fileID: 11400000, guid: 93850bc636e1f3e42b1e86acbd46df18, type: 2}
   - {fileID: 11400000, guid: 01e656f9e6f09bb489ae0a3aeb6f1c1e, type: 2}
+  - {fileID: 11400000, guid: 32c668d9f7b6f064087f937dd23715ac, type: 2}
+  - {fileID: 11400000, guid: 2af13c2eec9f9eb4a8c34baff2e4a219, type: 2}
   pickupLocations:
   - {fileID: 1638299283}
   - {fileID: 1964755164}
