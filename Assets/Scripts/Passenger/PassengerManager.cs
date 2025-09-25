@@ -26,6 +26,8 @@ public class PassengerManager : MonoBehaviour
     private Transform currentDropoff;
     private GameObject spawnedPassengerGO;
     private float lastRequestTime = 0f;
+    private AudioManager audioManager;
+    public bool pickedUp;
 
     private void Awake()
     {
@@ -37,6 +39,7 @@ public class PassengerManager : MonoBehaviour
     {
         StartCoroutine(RequestSpawner());
         StartCoroutine(RequestTimerRoutine());
+        audioManager = FindFirstObjectByType<AudioManager>();
     }
 
     private IEnumerator RequestSpawner()
@@ -87,6 +90,8 @@ public class PassengerManager : MonoBehaviour
         // show UI (first request only)
         if (activeRequests.Count == 1)
             UIManager.Instance.ShowPassengerRequest(req);
+        
+        audioManager.PlaySound("SFX_PickupNotification");
     }
 
     public void AcceptRequest()
@@ -135,6 +140,8 @@ public class PassengerManager : MonoBehaviour
 
         // Start rating decay timer while passenger is in car
         UIManager.Instance.SetPassengerInCar(true, currentPassengerSO);
+        audioManager.PlaySound("SFX_Pickup");
+        pickedUp = true;
         
         if (carArrow != null && currentDropoff != null)
             carArrow.PointToDropoff(currentDropoff);
@@ -146,12 +153,15 @@ public class PassengerManager : MonoBehaviour
         if (!activePassenger) return;
 
         activePassenger = false;
+        pickedUp = false;
     
         // reward
         GameManager.Instance.AddMoney(currentPassengerSO.baseFare);
         GameManager.Instance.AddTime(currentPassengerSO.timeBonus);
 
         UIManager.Instance.SetPassengerInCar(false, null);
+        
+        audioManager.PlaySound("SFX_Dropoff");
         
         if (UIManager.Instance.CurrentPatience >= 0.5f)
         {

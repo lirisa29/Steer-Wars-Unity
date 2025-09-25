@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,6 +21,7 @@ public class UIManager : MonoBehaviour
     public Image[] starImages;
     public Sprite emptyStarSprite;
     public Sprite filledStarSprite;
+    public GameObject moneyIcon;
 
     [Header("End Panels")]
     public GameObject successPanel;
@@ -34,6 +36,13 @@ public class UIManager : MonoBehaviour
     private float currentPatience = 1f;
     public float CurrentPatience => currentPatience;
     private Coroutine patienceRoutine;
+    
+    [Header("Pause Menu")]
+    public GameObject pausePanel;
+    private bool isPaused = false;
+    
+    private Coroutine flashRoutine;
+    private Color defaultTimerColor;
 
     private void Awake()
     {
@@ -43,12 +52,41 @@ public class UIManager : MonoBehaviour
         // assign button listeners
         acceptButton.onClick.AddListener(OnAcceptClicked);
         declineButton.onClick.AddListener(OnDeclineClicked);
+        
+        defaultTimerColor = timerText.color;
     }
 
     private void Start()
     {
         HidePassengerRequest();
         UpdateMoney(0);
+    }
+    
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (!isPaused)
+                PauseGame();
+            else
+                ResumeGame();
+        }
+    }
+    
+    // ====== Pause System ======
+
+    public void PauseGame()
+    {
+        isPaused = true;
+        Time.timeScale = 0f;
+        if (pausePanel != null) pausePanel.SetActive(true);
+    }
+
+    public void ResumeGame()
+    {
+        isPaused = false;
+        Time.timeScale = 1f;
+        if (pausePanel != null) pausePanel.SetActive(false);
     }
 
     public void ShowPassengerRequest(PassengerManager.PassengerRequest req)
@@ -80,6 +118,33 @@ public class UIManager : MonoBehaviour
         int mins = Mathf.FloorToInt(seconds / 60f);
         int secs = Mathf.FloorToInt(seconds % 60f);
         timerText.text = $"{mins:00}:{secs:00}";
+            
+        // Turn red if 10s or less
+        if (seconds <= 10f)
+        {
+            timerText.color = Color.red;
+        }
+        else if (flashRoutine == null) // only reset to default if not flashing
+        {
+            timerText.color = defaultTimerColor;
+        }
+    }
+    
+    // Called by GameManager when time is added
+    public void FlashTimerGreen()
+    {
+        if (flashRoutine != null)
+            StopCoroutine(flashRoutine);
+
+        flashRoutine = StartCoroutine(FlashGreenRoutine());
+    }
+
+    private IEnumerator FlashGreenRoutine()
+    {
+        timerText.color = Color.green;
+        yield return new WaitForSeconds(2f); // flash duration
+        timerText.color = defaultTimerColor;
+        flashRoutine = null;
     }
 
     public void UpdateMoney(int money)
@@ -116,6 +181,8 @@ public class UIManager : MonoBehaviour
         
         moneyText.enabled = false;
         timerText.enabled = false;
+        moneyIcon.SetActive(false);
+        inCarPanel.SetActive(false);
     }
 
     // Called by PassengerManager when player picks passenger up or passenger in car state changes

@@ -22,6 +22,7 @@ public class PickupZone : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         if (!other.CompareTag("PlayerCar")) return;
+        if (PassengerManager.Instance.pickedUp == true) return;
 
         Rigidbody rb = other.attachedRigidbody;
         if (rb == null) return;

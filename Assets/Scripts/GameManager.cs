@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     [Header("Stars & Tips")]
     public int maxStars = 5;
     public int tipBonusPerStar = 20;
+    
+    private AudioManager audioManager;
 
     // internal
     private void Awake()
@@ -28,6 +30,8 @@ public class GameManager : MonoBehaviour
     {
         currentTime = startingTime;
         UpdateUI();
+        
+        audioManager = FindFirstObjectByType<AudioManager>();
     }
 
     private void Update()
@@ -55,6 +59,7 @@ public class GameManager : MonoBehaviour
     {
         currentTime += amount;
         UIManager.Instance.UpdateTimer(currentTime);
+        UIManager.Instance.FlashTimerGreen();
     }
 
     public void LoseStar(int amount = 1)
@@ -82,6 +87,7 @@ public class GameManager : MonoBehaviour
         // Success screen with money and rating
         UIManager.Instance.ShowSuccessPanel(money, stars);
         UIManager.Instance.HideInGameUI();
+        audioManager.PlaySound("SFX_Gameover");
         Time.timeScale = 0f;
     }
 
