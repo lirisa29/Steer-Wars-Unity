@@ -133,12 +133,6 @@ public class PassengerManager : MonoBehaviour
         if (activeRequests.Count == 0) return;
         activeRequests.RemoveAt(0);
         UIManager.Instance.HidePassengerRequest();
-        UIManager.Instance.SetPassengerInCar(false, null);
-        activePassenger = false;
-        pickedUp = false;
-        currentPassengerSO = null;
-        currentPickup = null;
-        currentDropoff = null;
     }
 
     // called by PickupZone when car is stopped in pickup and passenger exists
@@ -213,12 +207,6 @@ public class PassengerManager : MonoBehaviour
                     activeRequests.RemoveAt(i);
                     lastRequestTime = Time.time; // prevent instant respawn
                     UIManager.Instance.HidePassengerRequest();
-                    UIManager.Instance.SetPassengerInCar(false, null);
-                    activePassenger = false;
-                    pickedUp = false;
-                    currentPassengerSO = null;
-                    currentPickup = null;
-                    currentDropoff = null;
                 }
             }
         }

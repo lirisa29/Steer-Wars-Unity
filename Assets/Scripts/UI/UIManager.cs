@@ -212,12 +212,19 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            // Stop the routine if passenger leaves
+            // Stop patience decay coroutine
             if (patienceRoutine != null)
             {
                 StopCoroutine(patienceRoutine);
                 patienceRoutine = null;
             }
+
+            passengerLostPatience = false;
+            currentPatience = 1f;
+
+            // Reset portrait + patience bar
+            inCarPatienceSlider.value = 1f;
+            inCarPortraitImage.sprite = null;
             inCarPanel.SetActive(false);
         }
     }
